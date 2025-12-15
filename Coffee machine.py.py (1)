@@ -1,0 +1,102 @@
+
+#main global database
+MENU = {
+    "espresso": {
+        "ingredients": {
+            "water": 50,
+            "coffee": 18,
+            "milk": 0,
+        },
+        "cost": 1.5,
+    },
+    "latte": {
+        "ingredients": {
+            "water": 200,
+            "milk": 150,
+            "coffee": 24,
+        },
+        "cost": 2.5,
+    },
+    "cappuccino": {
+        "ingredients": {
+            "water": 250,
+            "milk": 100,
+            "coffee": 24,
+        },
+        "cost": 3.0,
+    }
+}
+
+resources = {
+    "water": 300,
+    "milk": 200,
+    "coffee": 100,
+    "money": 0,
+}
+money_received=0
+#money check
+def currency_check(option):
+    global resources,MENU,money_received
+    coins=[0,0,0,0,]
+    cost=MENU[option]["cost"]
+    try:
+        print(f"{"="*40}\nInsert coins:")
+        coins[0]=int(input("Quarters(0.25) : "))
+        coins[1]=int(input("Dimes(0.10) : "))
+        coins[2]=int(input("Nickels(0.05) : "))
+        coins[3]=int(input("Pennies(0.01) : "))
+    except ValueError:
+        print(f"{"="*40}\nPlease enter a number not a character.......")
+        return 0.0,False
+    money_received=round(coins[0]*0.25+coins[1]*0.10+coins[2]*0.05+coins[3]*0.01,2)
+    if money_received>=cost:
+        resources["money"]+=cost
+        return money_received-cost, True
+    else:
+        return money_received, False
+
+#coffee making
+def make_coffee(option):
+    recipe=MENU[option]["ingredients"]
+    resources["water"]-=recipe["water"]
+    resources["milk"]-=recipe["milk"]
+    resources["coffee"] -= recipe["coffee"]
+
+#resource checking
+def resource_check(option):
+    global resources
+    recipe=MENU[option]["ingredients"]
+    if resources["milk"] >= recipe["milk"] and resources["water"] >= recipe["water"] and resources["coffee"] >= recipe["coffee"] : 
+        return True
+    else:
+        return False
+            
+#main body
+while True:
+    control=input(f"What would you like to have\nespresso: $1.5\nlatte: $2.5\ncappuccino: $3.0\nOrder: ").lower()
+    if control=="off":
+        break
+    elif control=="report":
+        print(f"{"="*40}\nWater: {resources.get("water")}\nMilk: {resources.get("milk")}\nCoffee: {resources.get("coffee")}\nCash collected: ${resources.get("money")}\n{"="*40}")
+        continue
+    elif control=="espresso" or control=="cappuccino" or control=="latte":
+        change,proceed=currency_check(control)
+        if proceed:
+            if resource_check(control):
+                resource_check(control)
+                make_coffee(control)
+                if change != 0:
+                    print(f"Here's your change: ${round(change,2)}")
+                print(f"Enjoy your {control}\n{"="*40}")
+            else:
+                print(f"Sorry Insufficient resources.\nCashback in progress........\ncashback successful Amount: {money_received}\n{"="*40}")    
+        else:
+            print(f"Sorry insufficient money.")
+            if change != 0:
+                print(f"Preparing for cashback\nCashback in process{"."*20}\nHere's your money: {round(change,2)}")
+            print(f"{"="*40}")
+    
+    else:
+        print(f"{"="*40}\nInvalid option\n{"="*40}")
+        continue
+        
